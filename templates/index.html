@@ -1,22 +1,251 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+    <meta property="og:title" content="네슐랭 가이드 인 서울" />
+    <meta property="og:description" content="대한민국 국민이라면 믿고 갈 수 있는 네이버 이용자들의 서울 술집 리스트. 당신의 오늘 분위기에 맞춘 술집은 어디? " />
+    <meta property="og:image" content="{{ url_for('static', filename='images/nachelin.jpg') }}" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-    <title>간단한 지도 표시하기</title>
-    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=73tiw08tb8"></script>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>네슐랭 가이드 인 서울</title>
+    <script type="text/javascript"
+        src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=73tiw08tb8&submodules=geocoder""></script>
+
+    <link rel=" stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+
+    <script src=" https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        #map {
+            width: 700px;
+            height: 500px;
+            margin: 50px auto 50px auto;
+        }
+
+        .wrap {
+            width: 700px;
+            margin: 10px auto;
+        }
+
+        .matjip-list {
+            overflow: scroll;
+            width: 700px;
+            height: 800px;
+        }
+    </style>
+
 </head>
+
 <body>
-<div id="map" style="width:100%;height:400px;"></div>
+    <div class="wrap">
+        <h1>MATJIP IN SEOUL</h1>
+        <br/>
+        <div class="input-group mb-3">
+            <input id="gu-name" type="text" class="form-control" placeholder="예시) 강남구">
+            <div class="input-group-append">
+                <button type="button" class="btn btn-success" onclick="find_my_best_place()">검색</button>
+            </div>
+        </div>
+        <div id="map"></div>
 
-<script>
-var mapOptions = {
-    center: new naver.maps.LatLng(37.3595704, 127.105399),
-    zoom: 10
-};
+        <div class="matjip-list" id="matjip-box">
+        </div>
+    </div>
 
-var map = new naver.maps.Map('map', mapOptions);
-</script>
+    <script>
+        //서울시 전체 구 목록
+        let seoulGu = ["종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구", "강북구", "도봉구", "노원구", "은평구", "서대문구", "마포구", "양천구", "강서구", "구로구", "금천구", "영등포구", "동작구", "관악구", "서초구", "강남구", "송파구", "강동구"];
+
+        // 전달받은 구이름 확인(서울시에있는 구가 맞는지)
+         function isValidGuName(guName) {
+            for (let i=0; i<seoulGu.length; i++) {
+                if (guName == seoulGu[i]) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 맛집 검색 요청
+        function find_my_best_place() {
+            let guName = $('#gu-name').val();
+            if (guName =='') {
+                alert('구 이름을 입력하세요.');
+                return;
+            }
+
+            if (isValidGuName(guName)==false) {
+                alert('올바른 구 이름을 입력하세요.');
+                return;
+            }
+
+            // 기존 맛집 목록이 있으면 지우고
+            $('#matjip-box').empty();
+            // 맛집 정보 요청 하기
+           $.ajax({
+                type: "GET",
+                url: `/matjip?gu_give=${guName}`,
+                success: function (response) {
+                    if(response ['result'] == 'success') {
+                        let matjipList = response['matjip_list'];
+                        // TM128 좌표를 위도/경도 좌표로 변환
+                        matjipList = getMatjipListWithGeoData(matjipList);
+                        // 맛집을 html로 추가 (지도 밑에 리스트 목록)
+                        addHTML(matjipList)
+                        // 지도 나타내기
+                        drawMap(matjipList)
+                    } else {
+                        alert('검색에 실패하였습니다.');
+                    }
+                }
+            });
+        }
+        function addHTML(matjipList) {
+             for (let i = 0; i < matjipList.length; i++) {
+                 let tempHtml = makeCard(matjipList[i]);
+                 $('#matjip-box').append(tempHtml);
+             }
+        }
+
+        function makeCard(matjip) {
+            return `<div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="#" class="matjip-title">${matjip['title']}</a></h5>
+                        <h6 class="card-subtitle mb-2 text-muted">${matjip['category']}</h6>
+                        <p class="card-text">${matjip['roadAddress']}</p>
+                        <a href="${matjip['link']}" target="_blank" class="card-link">링크</a>
+                        <a href="#" class="card-link">${matjip['telephone']}</a>
+                    </div>
+                    </div>`;
+        }
+
+        // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
+        function getLatLng(mapx, mapy) {
+                // 문자열 -> 숫자로 변환
+            let x = parseInt(mapx);
+            let y = parseInt(mapy);
+
+                // 네이버가 제공하는 변환 함수 사용
+            let geoInfo = naver.maps.TransCoord.fromTM128ToLatLng(new naver.maps.Point(x, y));
+                // 변환 딕셔너리 반환
+            return { 'lat': geoInfo._lat, 'lng': geoInfo._lng }
+        }
+
+        // matjipList 좌표 정보를 바꾸기
+        function getMatjipListWithGeoData(matjipList) {
+		    // 반환할 맛집 목록
+            let result = [];
+
+            for (let i = 0; i < matjipList.length; i++) {
+                // 개별 맛집 데이터를 matjip에 저장
+                let matjip = matjipList[i];
+                let mapx = matjip['mapx'];
+                let mapy = matjip['mapy'];
+                        // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
+                let geoData = getLatLng(mapx, mapy);
+                        // geoData 라는 이름으로 맛집 데이터에 추가
+                matjip['geoData'] = geoData;
+                        // 반환할 맛집 목록에 추가
+                result.push(matjip);
+            }
+            // 맛집 목록 반환
+            return result;
+        }
+
+
+        function drawMap(matjipList) {
+            // 1등 맛집의 위치 정보를 geoData에 저장
+            let geoData = matjipList[0]['geoData'];
+            // 마커 목록 만들기
+            let markerList = [];
+            let contents = [];
+            // 1등 맛집을 지도의 중심에 놓기
+            let numberOne = new naver.maps.LatLng(geoData['lat'], geoData['lng']),
+                map = new naver.maps.Map('map', {
+                    center: numberOne,
+                    zoom: 12
+                }),
+                marker = new naver.maps.Marker({
+                    position: numberOne,
+                    map: map
+                });
+
+            // 2등부터 마지막까지 맛집 데이터를 지도에 표시
+            for (let i = 0; i < matjipList.length; i++) {
+                let matjip = matjipList[i];
+                let position = new naver.maps.LatLng(matjip['geoData']['lat'], matjip['geoData']['lng'])
+                marker = new naver.maps.Marker({
+                    position: position,
+                    map: map
+                });
+
+                // 마커를 클릭했을 때 보여줄 창을 HTML 태그로 만들기
+                let contentString = `<div class="iw_inner">
+                                    <h3>${matjip['title']}</h3>
+                                    <p>${matjip['address']}<br />
+                                        ${matjip['category']}<br />
+                                        <a href="${matjip['link']}" target="_blank">링크</a>
+                                    </p>
+                                    </div>`;
+                // contents에 태그를 저장
+                contents.push(contentString);
+                // 마커 목록에 markerList 저장하기
+                markerList.push(marker);
+            }
+
+            // 클래스명이 matjip-title 카드 정보를 추출 (상호명)
+            const matjipElement = $('.matjip-title');
+
+            for (let i = 0; i < markerList.length; i++) {
+                let marker = markerList[i];
+                let infowindow = new naver.maps.InfoWindow({
+                    content: contents[i],
+                    maxWidth: 140,
+                    backgroundColor: "#eee",
+                    borderColor: "#2db400",
+                    borderWidth: 5,
+                    anchorSize: new naver.maps.Size(30, 30),
+                    anchorSkew: true,
+                    anchorColor: "#eee",
+                    pixelOffset: new naver.maps.Point(20, -20)
+                });
+
+                // 마커를 클릭했을 때 지도 위에 정보 띄우기
+                naver.maps.Event.addListener(marker, "click", function (e) {
+                    if (infowindow.getMap()) {
+                        infowindow.close();
+                    } else {
+                        infowindow.open(map, marker);
+                    }
+                });
+                // 맛집 HTML의 상호명을 클릭했을 때 지도 위에 정보 띄우기
+                matjipElement[i].addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (infowindow.getMap()) {
+                        infowindow.close();
+                    } else {
+                        infowindow.open(map, marker);
+                    }
+                })
+
+            }
+        }
+
+
+
+    </script>
 </body>
+
 </html>

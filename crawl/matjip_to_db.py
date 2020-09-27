@@ -9,7 +9,7 @@ db = client.seoul_suljip
 
 # 서울시 구별로 맛집을 검색
 seoul_gu = ["종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구", "강북구", "도봉구", "노원구", "은평구", "서대문구", "마포구", "양천구", "강서구", "구로구", "금천구", "영등포구", "동작구", "관악구", "서초구", "강남구", "송파구", "강동구"]
-
+seoul_sul = ["와인", "칵테일", "소주", "맥주"]
 # 네이버 검색 API 아이디와 시크릿 키
 client_id = "uQBabSo2SlUiRpaco6iL"
 client_secret = "HtrjQr6HZQ"
@@ -27,85 +27,31 @@ def get_naver_result(keyword):
     data = data.json()
     return data['items']
 
+
 # 저장할 전체 맛집 목록
 docs = []
-# 구별로 검색
-# 1. 와인
-for gu in seoul_gu:
-    # '강님구 와인', '종로구 와인 ', '용산구 와인 ' .. 반복 인코딩
-    keyword_wine = f'{gu} 와인'
 
-    # 맛집 리스트 받아오기
-    suljip_list_wine = get_naver_result(keyword_wine)
+#술 종류별로 검색
+for sul in seoul_sul:
+    # 술집안에서 구별로 또 검색
+    for gu in seoul_gu:
+        keyword = f'{gu} {sul}'
+        # 술집 리스트 받아오기
+        suljip_list = get_naver_result(keyword)
 
-    # 구별 맛집 구분선
-    print("*"*80 + gu)
+        # 구별 술집 구분선
+        print("*"*80 + gu + sul)
 
-    for suljip_wine in suljip_list_wine:
-        # 구 정보를 추가
-        suljip_wine['gu'] = gu
-        # 맛집을 인쇄
-        pprint.pprint(suljip_wine)
-        # docs에 와인맛집을 추가
-        docs.append(suljip_wine)
+        # 구, 술종류 정보를 추가
+        for suljip in suljip_list:
+            suljip['gu'] = gu
+            suljip['sul'] = sul
 
-# 2. 칵테일
-for gu in seoul_gu:
-    keyword_cocktail = f'{gu} 칵테일'
+            #술집 프린트
+            pprint.pprint(suljip)
 
-    # 맛집 리스트 받아오기
-    suljip_list_cocktail = get_naver_result(keyword_cocktail)
-
-    # 구별 맛집 구분선
-    print("*"*80 + gu)
-
-    for suljip_cocktail in suljip_list_cocktail:
-        # 구 정보를 추가
-        suljip_cocktail['gu'] = gu
-        # 맛집을 인쇄
-        pprint.pprint(suljip_cocktail)
-        # docs에 소주맛집을 추가
-        docs.append(suljip_cocktail)
-
-# 3. 소주
-for gu in seoul_gu:
-    keyword_soju = f'{gu} 소주'
-
-    # 맛집 리스트 받아오기
-    suljip_list_soju = get_naver_result(keyword_soju)
-
-    # 구별 맛집 구분선
-    print("*"*80 + gu)
-
-    for suljip_soju in suljip_list_soju:
-        # 구 정보를 추가
-        suljip_soju['gu'] = gu
-        # 맛집을 인쇄
-        pprint.pprint(suljip_soju)
-        # docs에 소주맛집을 추가
-        docs.append(suljip_soju)
-
-# 4. 맥주
-for gu in seoul_gu:
-    keyword_beer = f'{gu} 맥주'
-
-    # 맛집 리스트 받아오기
-    suljip_list_beer = get_naver_result(keyword_beer)
-
-    # 구별 맛집 구분선
-    print("*"*80 + gu)
-
-    for suljip_beer in suljip_list_beer:
-        # 구 정보를 추가
-        suljip_beer['gu'] = gu
-        # 맛집을 인쇄
-        pprint.pprint(suljip_beer)
-        # docs에 소주맛집을 추가
-        docs.append(suljip_beer)
-
+            # docs에 술집들 추가
+            docs.append(suljip)
 
 # 맛집 정보 저장
-db.suljip_wine.insert_many(docs)
-db.suljip_soju.insert_many(docs)
-db.suljip_beer.insert_many(docs)
-db.suljip_cocktail.insert_many(docs)
+db.suljip.insert_many(docs)

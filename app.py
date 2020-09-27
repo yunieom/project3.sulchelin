@@ -14,14 +14,17 @@ def home():
     return render_template('index.html')
 
 
-@app.route('/matjip', methods=["GET"])
-def get_matjip():
-    # gu_receive 라는 변수에 전달받은 구 이름을 저장
+@app.route('/suljip', methods=["GET"])
+def get_suljip():
+    # gu_receive 라는 변수에 전달받은 구, 술 종류 저장
     gu_receive = request.args.get('gu_give')
-    # 구 이름에 해당하는 모든 맛집 목록을 불러오기
-    matjip_list = list(db.matjip.find({'gu': gu_receive}, {'_id': False}))
-    # matjip_list 라는 키 값에 맛집 목록을 담아 클라이언트단으로 반환
-    return jsonify({'result': 'success', 'matjip_list': matjip_list})
+    sul_receive = request.args.get('sul_give')
+    # 구, 술 종류별에 해당하는 모든 술집 목록을 불러오기
+    suljip_list = list(db.suljip.find({'gu': gu_receive, 'sul': sul_receive}, {'_id': False}))
+    # matjip_list 라는 키 값에 술집 목록을 담아 클라이언트단으로 반환
+    return jsonify({'result': 'success', 'suljip_list': suljip_list})
+
+
 
 
 

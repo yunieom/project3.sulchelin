@@ -11,7 +11,7 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <title>술슐랭 가이드 인 서울</title>
     <script type="text/javascript"
-        src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=73tiw08tb8&submodules=geocoder""></script>
+        src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=73tiw08tb8&submodules=geocoder"></script>
     <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=73tiw08tb8&callback=CALLBACK_FUNCTION"></script>
     <link rel=" stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -19,22 +19,20 @@
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
         crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
 
     <script src=" https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
         var mapOptions = {
-            center: new naver.maps.LatLng(37.3595704, 127.105399),
-            zoom: 10
+            center: new naver.maps.LatLng(37.546065, 126.983068),
+            zoom: 12
         }
         var map = new naver.maps.Map('map', {
-            center: new naver.maps.LatLng(37.3595704, 127.105399),
-            zoom: 10
+            center: new naver.maps.LatLng(37.546065, 126.983068),
+            zoom: 12
         });
 
 
@@ -58,6 +56,10 @@
         }
         body > div.input-group.mb-3 {
             text-align: center;
+        }
+
+        .btn btn-outline-secondary {
+            text-align: right;
         }
     </style>
 
@@ -83,7 +85,7 @@
           </div>
         </div>
 
-    
+
 
         <div id="map">
         </div>
@@ -154,6 +156,8 @@
                         addHTML(suljipList)
                         // 지도 나타내기
                         drawMap(suljipList)
+                        makeCard(suljipList)
+
                     } else {
                         alert('검색에 실패하였습니다.');
                     }
@@ -175,15 +179,38 @@
                         <p class="card-text">${suljip['roadAddress']}</p>
                         <a href="${suljip['link']}" target="_blank" class="card-link">링크</a>
                         <a href="#" class="card-link">${suljip['telephone']}</a>
+                        <!-- Button trigger modal -->
+                        <button id="find_location" onclick="findLocation(suljipList)" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" >
+                         길찾기
+                        </button>
+
                     </div>
                     </div>`;
         }
 
+        // modal
+        function findLocation(suljipList) {
+            $('#staticBackdrop').on('show.bs.modal', function (event) {
+
+                const suljipElement = $('.suljip-title');
+                var find_location = $(event.relatedTarget)
+                var modal = $(this)
+                console.log(suljipTitle)
+
+
+                modal.find('.modal-title').text(suljipElement+'(으)로 가는 길 (위치정보 허용)')
+                findMapTest(suljipList)
+            })
+
+        }
+
+
+
         // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
-        function getLatLng(mapx, mapy) {
+        function getLatLng(ex, ey) {
                 // 문자열 -> 숫자로 변환
-            let x = parseInt(mapx);
-            let y = parseInt(mapy);
+            let x = parseInt(ex);
+            let y = parseInt(ey);
 
                 // 네이버가 제공하는 변환 함수 사용
             let geoInfo = naver.maps.TransCoord.fromTM128ToLatLng(new naver.maps.Point(x, y));
@@ -193,19 +220,19 @@
 
         // suljipList 좌표 정보를 바꾸기
         function getSuljipListWithGeoData(suljipList) {
-		    // 반환할 맛집 목록
+		    // 반환할 술집 목록
             let result = [];
 
             for (let i = 0; i < suljipList.length; i++) {
-                // 개별 맛집 데이터를 suljip에 저장
+                // 개별 술집 데이터를 suljip에 저장
                 let suljip = suljipList[i];
-                let mapx = suljip['mapx'];
-                let mapy = suljip['mapy'];
+                let ex = suljip['mapx'];
+                let ey = suljip['mapy'];
                         // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
-                let geoData = getLatLng(mapx, mapy);
-                        // geoData 라는 이름으로 맛집 데이터에 추가
+                let geoData = getLatLng(ex, ey);
+                        // geoData 라는 이름으로 술집 데이터에 추가
                 suljip['geoData'] = geoData;
-                        // 반환할 맛집 목록에 추가
+                        // 반환할 술집 목록에 추가
                 result.push(suljip);
             }
             // 맛집 목록 반환
@@ -214,12 +241,12 @@
 
 
         function drawMap(suljipList) {
-            // 1등 맛집의 위치 정보를 geoData에 저장
+            // 1등 술집의 위치 정보를 geoData에 저장
             let geoData = suljipList[0]['geoData'];
             // 마커 목록 만들기
             let markerList = [];
             let contents = [];
-            // 1등 맛집을 지도의 중심에 놓기
+            // 1등 술집을 지도의 중심에 놓기
             let numberOne = new naver.maps.LatLng(geoData['lat'], geoData['lng']),
                 map = new naver.maps.Map('map', {
                     center: numberOne,
@@ -230,7 +257,7 @@
                     map: map
                 });
 
-            // 2등부터 마지막까지 맛집 데이터를 지도에 표시
+            // 2등부터 마지막까지 술집 데이터를 지도에 표시
             for (let i = 0; i < suljipList.length; i++) {
                 let suljip = suljipList[i];
                 let position = new naver.maps.LatLng(suljip['geoData']['lat'], suljip['geoData']['lng'])
@@ -291,9 +318,367 @@
             }
         }
 
-
-
     </script>
+
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">현재위치에서 가는길을 안내합니다.</h5>
+            <button class="btn btn-outline-secondary" type="button" onclick="find_loc()">go</button>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+                <div id="result-box" class="row">
+                    <div id="map2" class="col-md-7" style="height:350px; margin-left: 30px"></div> <!-- map2 -->
+                    <div id="show-info-box" class="col-md-4" style="margin-left: 30px; margin-top:10px;">
+                        <p class="moving"><i class="fas fa-arrow-circle-right"></i> Route</p>
+                        <ol class="numbered" id="route">
+                        </ol>
+                    </div>
+                </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Naver Developers에서 발급받은 네이버지도 Application Key 입력  -->
+<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=73tiw08tb"></script>
+<script>
+
+
+
+    var mapOptions2 = {
+            center: new naver.maps.LatLng(37.546065, 126.983068),
+            zoom: 12
+        }
+    var map2 = new naver.maps.Map('map', {
+            center: new naver.maps.LatLng(37.546065, 126.983068),
+            zoom: 12
+        });
+
+
+    function find_loc() {
+        $("#route").empty();
+        map = new naver.maps.Map('map2', mapOptions2);
+    }
+
+
+    let sx = 0;
+    let sy = 0;
+    let ex = 0;
+    let ey = 0;
+
+
+    function findMapTest(suljipList){
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                user_latitude = position.coords.latitude;
+                user_longitude = position.coords.longitude;
+                shop_latitude = position.coords.latitude;
+                shop_longitude = position.coords.longitude;
+                let geoData = suljipList[0]['geoData'];
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/suljip/location',
+                    data: {
+                        user_latitude: user_latitude,
+                        user_longitude: user_longitude,
+                        shop_latitude: shop_latitude,
+                        shop_longitude: shop_longitude
+                    },
+                    success: function (response) {
+                        sx = response['result']['SX']
+                        sy = response['result']['SY']
+                        ex = response['result']['EX']
+                        ey = response['result']['EY']
+                        console.log(sx)
+                        console.log(sy)
+                        console.log(ex)
+                        console.log(ey)
+
+                        const suljipElement = $('.suljip-title');
+                        console.log(suljipElement)
+
+                        searchPubTransPathAJAX(sx, sy, ex, ey);
+                        getInfo(sx, sy, ex, ey);
+
+
+                    }
+
+                })
+            }, function (error) {
+                console.error(error);
+            }, {
+                enableHighAccuracy: false,
+                maximumAge: 0,
+                timeout: Infinity
+            });
+        }
+    }
+
+
+    let m = 1;
+
+    function getInfo(sx, sy, ex, ey) {
+        var xhr = new XMLHttpRequest();
+        //ODsay apiKey 입력
+        var url = "https://api.odsay.com/v1/api/searchPubTransPath?SX=" + sx + "&SY=" + sy + "&EX=" + ex + "&EY=" + ey + "&apiKey=7Ak3/euIYXO3u1EJYksnyvuyqX5tBUrrNfSg3h1zGec";
+        xhr.open("GET", url, true);
+        xhr.send();
+        xhr.onreadystatechange = function () {
+
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                let subpath = (JSON.parse(xhr.responseText))["result"]["path"][0]["subPath"]
+                let path = (JSON.parse(xhr.responseText))["result"]["path"][0]
+
+
+                for (let i = 0; i < subpath.length; i++) {
+
+                    if (subpath[i]["trafficType"] == 1) {
+                        txt = "<li>" + subpath[i]["startName"] + "-->"
+                            + subpath[i]["endName"] +
+                            " (지하철 " + subpath[i]["lane"][0]["name"] + ")" + "</li>"
+
+                        console.log(txt)
+                        $("#route").append(txt)
+                    } else if (subpath[i]["trafficType"] == 2) {
+                        txt = "<li>" + subpath[i]["startName"] + "-->"
+                            + subpath[i]["endName"] +
+                            " (" + subpath[i]["lane"][0]["busNo"] + "번 버스)" + "</li>"
+
+                        console.log(txt)
+                        $("#route").append(txt)
+                    } else {
+                        if (subpath[i]["sectionTime"] == 0) {
+                            console.log('(환승)')
+                        } else {
+                            txt = "<li>" + "도보로 이동" + " (" + subpath[i]["sectionTime"] + "분 소요)" + "</li>"
+
+                            console.log(txt)
+                            $("#route").append(txt)
+
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    function searchPubTransPathAJAX(sx, sy, ex, ey) {
+        var xhr = new XMLHttpRequest();
+        //ODsay apiKey 입력
+        var url = "https://api.odsay.com/v1/api/searchPubTransPath?SX=" + sx + "&SY=" + sy + "&EX=" + ex + "&EY=" + ey + "&apiKey=7Ak3/euIYXO3u1EJYksnyvuyqX5tBUrrNfSg3h1zGec";
+        xhr.open("GET", url, true);
+        xhr.send();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                console.log((JSON.parse(xhr.responseText))["result"]); // <- xhr.responseText 로 결과를 가져올 수 있음
+                //노선그래픽 데이터 호출
+                console.log((JSON.parse(xhr.responseText))['result']['path'][0]['info'])
+                callMapObjApiAJAX((JSON.parse(xhr.responseText))["result"]["path"][0].info.mapObj);
+            }
+        }
+    }
+
+    //길찾기 API 호출
+
+
+    function callMapObjApiAJAX(mabObj) {
+        var xhr = new XMLHttpRequest();
+        //ODsay apiKey 입력
+        var url = "https://api.odsay.com/v1/api/loadLane?mapObject=0:0@" + mabObj + "&apiKey=7Ak3/euIYXO3u1EJYksnyvuyqX5tBUrrNfSg3h1zGec";
+        xhr.open("GET", url, true);
+        xhr.send();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var resultJsonData = JSON.parse(xhr.responseText);
+                drawNaverMarker(sx, sy);					// 출발지 마커 표시
+                drawNaverMarker2(ex, ey);					// 도착지 마커 표시
+                drawNaverPolyLine(resultJsonData);		// 노선그래픽데이터 지도위 표시
+                // boundary 데이터가 있을경우, 해당 boundary로 지도이동
+                if (resultJsonData.result.boundary) {
+                    var boundary = new naver.maps.LatLngBounds(
+                        new naver.maps.LatLng(resultJsonData.result.boundary.top, resultJsonData.result.boundary.left),
+                        new naver.maps.LatLng(resultJsonData.result.boundary.bottom, resultJsonData.result.boundary.right)
+                    );
+                    map.panToBounds(boundary);
+                }
+            }
+        }
+    }
+
+    // 지도위 마커 표시해주는 함수
+    function drawNaverMarker(x, y) {
+        var marker = new naver.maps.Marker({
+            position: new naver.maps.LatLng(y, x),
+            animation: 2,
+            map: map,
+
+        });
+    }
+
+    function drawNaverMarker2(x, y) {
+        var marker = new naver.maps.Marker({
+            position: new naver.maps.LatLng(y, x),
+            animation: 2,
+            map: map,
+
+        });
+    }
+
+
+    // 노선그래픽 데이터를 이용하여 지도위 폴리라인 그려주는 함수
+    function drawNaverPolyLine(data) {
+        var lineArray;
+
+        for (var i = 0; i < data.result.lane.length; i++) {
+            for (var j = 0; j < data.result.lane[i].section.length; j++) {
+                lineArray = null;
+                lineArray = new Array();
+                for (var k = 0; k < data.result.lane[i].section[j].graphPos.length; k++) {
+                    lineArray.push(new naver.maps.LatLng(data.result.lane[i].section[j].graphPos[k].y, data.result.lane[i].section[j].graphPos[k].x));
+                }
+
+                //지하철결과의 경우 노선에 따른 라인색상 지정하는 부분
+                if (data.result.lane[i].type == 1) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#0052A4'
+                    });
+                } else if (data.result.lane[i].type == 2) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#009D3E'
+                    });
+                } else if (data.result.lane[i].type == 3) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#EF7C1C'
+                    });
+                } else if (data.result.lane[i].type == 4) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#00A5DE'
+                    });
+                } else if (data.result.lane[i].type == 5) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#996CAC'
+                    });
+                } else if (data.result.lane[i].type == 6) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#CD7C2F'
+                    });
+                } else if (data.result.lane[i].type == 7) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#747F00'
+                    });
+                } else if (data.result.lane[i].type == 8) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#EA545D'
+                    });
+                } else if (data.result.lane[i].type == 9) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#BDB092'
+                    });
+                } else if (data.result.lane[i].type == 100) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#F5A200'
+                    });
+                } else if (data.result.lane[i].type == 101) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#0065B3'
+                    });
+                } else if (data.result.lane[i].type == 21) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#7CA8D5'
+                    });
+                } else if (data.result.lane[i].type == 104) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#77C4A3'
+                    });
+                } else if (data.result.lane[i].type == 107) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#6FB245'
+                    });
+                } else if (data.result.lane[i].type == 108) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#0C8E72'
+                    });
+                } else if (data.result.lane[i].type == 109) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#D4003B'
+                    });
+                } else if (data.result.lane[i].type == 111) {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3,
+                        strokeColor: '#F5A200'
+                    });
+                } else {
+                    var polyline = new naver.maps.Polyline({
+                        map: map,
+                        path: lineArray,
+                        strokeWeight: 3
+                    });
+                }
+            }
+        }
+    }
+</script>
 </body>
 
 </html>

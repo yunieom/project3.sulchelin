@@ -24,8 +24,21 @@ def get_suljip():
     # matjip_list 라는 키 값에 술집 목록을 담아 클라이언트단으로 반환
     return jsonify({'result': 'success', 'suljip_list': suljip_list})
 
+@app.route('/suljip/location', methods=['POST'])
+def test_origin():
+    user_SX = request.form['user_longitude']
+    user_SY = request.form['user_latitude']
+    shop_EX = request.form['shop_longitude']
+    shop_EY = request.form['shop_longitude']
 
+    origin = {
+        'SX' : user_SX,
+        'SY' : user_SY,
+        'EX' : shop_EX,
+        'EY' : shop_EY
+    }
 
+    return jsonify({'result':origin})
 
 
 if __name__ == '__main__':

@@ -201,7 +201,6 @@
                 modal.find('.modal-title').text(suljipElement+'(으)로 가는 길 (위치정보 허용)')
                 findMapTest(suljipList)
             })
-
         }
 
 
@@ -380,8 +379,8 @@
             navigator.geolocation.getCurrentPosition(function (position) {
                 user_latitude = position.coords.latitude;
                 user_longitude = position.coords.longitude;
-                shop_latitude = position.coords.latitude;
-                shop_longitude = position.coords.longitude;
+                shop_latitude =  ;
+                shop_longitude = ;
                 let geoData = suljipList[0]['geoData'];
 
 
@@ -392,7 +391,7 @@
                         user_latitude: user_latitude,
                         user_longitude: user_longitude,
                         shop_latitude: shop_latitude,
-                        shop_longitude: shop_longitude
+                        shop_longitude:
                     },
                     success: function (response) {
                         sx = response['result']['SX']
@@ -409,10 +408,7 @@
 
                         searchPubTransPathAJAX(sx, sy, ex, ey);
                         getInfo(sx, sy, ex, ey);
-
-
                     }
-
                 })
             }, function (error) {
                 console.error(error);

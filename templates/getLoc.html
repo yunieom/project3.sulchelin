@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <script>
+            const successCallback = (position)=> {
+                let current_latitude = position.coords.latitude
+                let current_longitude = position.coords.longitude
+                alert ('현재위도: ' + current_latitude + ', 현재경도: ' + current_longitude)
+            }
+            const errorCallback = (error) => {
+                console.log(error)
+            }
+
+           function getLocation() {
+              navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+           }
+        </script>
+    </head>
+    <body>
+
+        <h1>현재위치 가져오기</h1>
+        <button onclick="getLocation()">허용</button>
+        
+    </body>
+</html>

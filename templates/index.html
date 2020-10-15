@@ -13,18 +13,24 @@
     <script type="text/javascript"
         src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=73tiw08tb8&submodules=geocoder"></script>
     <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=73tiw08tb8&callback=CALLBACK_FUNCTION"></script>
-    <link rel=" stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-        crossorigin="anonymous"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+                integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+                crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+                integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+                crossorigin="anonymous"></script>
 
 
-    <script src=" https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+
     <script>
         var mapOptions = {
             center: new naver.maps.LatLng(37.546065, 126.983068),
@@ -61,6 +67,8 @@
         .btn btn-outline-secondary {
             text-align: right;
         }
+        
+
     </style>
 
 </head>
@@ -84,6 +92,7 @@
               </div>
           </div>
         </div>
+
 
 
 
@@ -156,7 +165,7 @@
                         addHTML(suljipList)
                         // 지도 나타내기
                         drawMap(suljipList)
-                        makeCard(suljipList)
+                        findLocation(suljipList)
 
                     } else {
                         alert('검색에 실패하였습니다.');
@@ -173,47 +182,57 @@
 
         function makeCard(suljip) {
             return `<div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title"><a href="#" class="suljip-title">${suljip['title']}</a></h5>
-                        <h6 class="card-subtitle mb-2 text-muted">${suljip['category']}</h6>
-                        <p class="card-text">${suljip['roadAddress']}</p>
-                        <a href="${suljip['link']}" target="_blank" class="card-link">링크</a>
-                        <a href="#" class="card-link">${suljip['telephone']}</a>
-                        <!-- Button trigger modal -->
-                        <button id="find_location" onclick="findLocation(suljipList)" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" >
-                         길찾기
-                        </button>
-
-                    </div>
+                        <div class="card-body">
+                            <h5 class="card-title" id="suljip-title"><a href="#" class="suljip-title">${suljip['title']}</a></h5>
+                            <h6 class="card-subtitle mb-2 text-muted">${suljip['category']}</h6>
+                            <p class="card-text">${suljip['roadAddress']}</p>
+                            <a href="${suljip['link']}" target="_blank" class="card-link">링크</a>
+                            <a href="#" class="card-link">${suljip['telephone']}</a>
+                            <input type="hidden" id="shop_title" value="${suljip['title']}" />
+                            <input type="hidden" id="shop_lng" value="${suljip['mapx']}" />
+                            <input type="hidden" id="shop_lat" value="${suljip['mapy']}" />
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" onclick="findLocation(suljip)" >길찾기</button>
+                        </div>
                     </div>`;
         }
 
-        // modal
-        function findLocation(suljipList) {
-            $('#staticBackdrop').on('show.bs.modal', function (event) {
+        //modal
+        function findLocation(suljip) {
+             $('#staticBackdrop').on('show.bs.modal', function (event) {
 
-                const suljipElement = $('.suljip-title');
-                var find_location = $(event.relatedTarget)
-                var modal = $(this)
-                console.log(suljipTitle)
+                 //var edit_card = $(event.relatedTarget) // Button that triggered the modal
+                 var modal = $(this)
+                 var suljip_title = $('#shop_title>a').val();
+                 // 문제. suljip_title이 1번째 식당밖에 안읽힘 2번째 문제. 경도랑 위도가 잘못잡힘.
+                 console.log(suljip_title)
+                 let ex = $('#shop_lat').val();
+                 let ey = $('#shop_lng').val();
 
+                 // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
+                 let geoData = getLatLng(ex, ey);
+                 console.log(geoData)
+                 //console.log(suljip_title)
 
-                modal.find('.modal-title').text(suljipElement+'(으)로 가는 길 (위치정보 허용)')
-                findMapTest(suljipList)
-            })
+                 modal.find('.modal-title').text(suljip_title+'(으)로 가는길을 안내합니다. (내 위치 허용)')
+
+                 findMapTest(suljip_title)
+
+             })
         }
+
+
 
 
 
         // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
         function getLatLng(ex, ey) {
-                // 문자열 -> 숫자로 변환
+            // 문자열 -> 숫자로 변환
             let x = parseInt(ex);
             let y = parseInt(ey);
 
-                // 네이버가 제공하는 변환 함수 사용
+            // 네이버가 제공하는 변환 함수 사용
             let geoInfo = naver.maps.TransCoord.fromTM128ToLatLng(new naver.maps.Point(x, y));
-                // 변환 딕셔너리 반환
+            // 변환 딕셔너리 반환
             return { 'lat': geoInfo._lat, 'lng': geoInfo._lng }
         }
 
@@ -227,12 +246,15 @@
                 let suljip = suljipList[i];
                 let ex = suljip['mapx'];
                 let ey = suljip['mapy'];
-                        // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
+                // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
                 let geoData = getLatLng(ex, ey);
-                        // geoData 라는 이름으로 술집 데이터에 추가
+                // geoData 라는 이름으로 술집 데이터에 추가
                 suljip['geoData'] = geoData;
-                        // 반환할 술집 목록에 추가
+                // 반환할 술집 목록에 추가
+                console.log(geoData)
                 result.push(suljip);
+
+                //findMapTest(geoData);
             }
             // 맛집 목록 반환
             return result;
@@ -242,6 +264,7 @@
         function drawMap(suljipList) {
             // 1등 술집의 위치 정보를 geoData에 저장
             let geoData = suljipList[0]['geoData'];
+
             // 마커 목록 만들기
             let markerList = [];
             let contents = [];
@@ -321,30 +344,30 @@
 
     <!-- Modal -->
     <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">현재위치에서 가는길을 안내합니다.</h5>
-            <button class="btn btn-outline-secondary" type="button" onclick="find_loc()">go</button>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-                <div id="result-box" class="row">
-                    <div id="map2" class="col-md-7" style="height:350px; margin-left: 30px"></div> <!-- map2 -->
-                    <div id="show-info-box" class="col-md-4" style="margin-left: 30px; margin-top:10px;">
-                        <p class="moving"><i class="fas fa-arrow-circle-right"></i> Route</p>
-                        <ol class="numbered" id="route">
-                        </ol>
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">현재위치에서 가는길을 안내합니다.</h5>
+                <button class="btn btn-outline-secondary" type="button" onclick="find_loc()">go</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                    <div id="result-box" class="row">
+                        <div id="map2" class="col-md-7" style="height:350px; margin-left: 30px"></div> <!-- map2 -->
+                        <div id="show-info-box" class="col-md-4" style="margin-left: 30px; margin-top:10px;">
+                            <p class="moving"><i class="fas fa-arrow-circle-right"></i> Route</p>
+                            <ol class="numbered" id="route">
+                            </ol>
+                        </div>
                     </div>
-                </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
         </div>
-      </div>
     </div>
     <!-- Naver Developers에서 발급받은 네이버지도 Application Key 입력  -->
 <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=73tiw08tb"></script>
@@ -374,14 +397,16 @@
     let ey = 0;
 
 
-    function findMapTest(suljipList){
+
+    function findMapTest(geoData){
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function (position) {
                 user_latitude = position.coords.latitude;
                 user_longitude = position.coords.longitude;
-                shop_latitude =  ;
-                shop_longitude = ;
-                let geoData = suljipList[0]['geoData'];
+                shop_latitude =  geoData['lat'];
+                shop_longitude = geoData['lng'];
+                console.log(user_latitude, user_longitude, shop_latitude,shop_longitude);
+
 
 
                 $.ajax({
@@ -391,7 +416,7 @@
                         user_latitude: user_latitude,
                         user_longitude: user_longitude,
                         shop_latitude: shop_latitude,
-                        shop_longitude:
+                        shop_longitude:shop_longitude
                     },
                     success: function (response) {
                         sx = response['result']['SX']
@@ -403,8 +428,7 @@
                         console.log(ex)
                         console.log(ey)
 
-                        const suljipElement = $('.suljip-title');
-                        console.log(suljipElement)
+
 
                         searchPubTransPathAJAX(sx, sy, ex, ey);
                         getInfo(sx, sy, ex, ey);

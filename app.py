@@ -29,7 +29,7 @@ def test_origin():
     user_SX = request.form['user_longitude']
     user_SY = request.form['user_latitude']
     shop_EX = request.form['shop_longitude']
-    shop_EY = request.form['shop_longitude']
+    shop_EY = request.form['shop_latitude']
 
     origin = {
         'SX' : user_SX,

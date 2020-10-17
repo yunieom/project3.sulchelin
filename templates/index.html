@@ -175,49 +175,97 @@
         }
         function addHTML(suljipList) {
              for (let i = 0; i < suljipList.length; i++) {
-                 let tempHtml = makeCard(suljipList[i]);
+                 let tempHtml = makeCard(suljipList[i], i);
                  $('#suljip-box').append(tempHtml);
              }
         }
-
-        function makeCard(suljip) {
-            return `<div class="card">
+        function makeCard(suljip, n) {
+            return `<div class="card" id="card-${n}">
                         <div class="card-body">
                             <h5 class="card-title" id="suljip-title"><a href="#" class="suljip-title">${suljip['title']}</a></h5>
                             <h6 class="card-subtitle mb-2 text-muted">${suljip['category']}</h6>
                             <p class="card-text">${suljip['roadAddress']}</p>
                             <a href="${suljip['link']}" target="_blank" class="card-link">링크</a>
                             <a href="#" class="card-link">${suljip['telephone']}</a>
-                            <input type="hidden" id="shop_title" value="${suljip['title']}" />
-                            <input type="hidden" id="shop_lng" value="${suljip['mapx']}" />
-                            <input type="hidden" id="shop_lat" value="${suljip['mapy']}" />
+                            <input type="hidden" name="shop_title" value="${suljip['title']}" />
+                            <input type="hidden" class="shop_lng" value="${suljip['mapx']}" />
+                            <input type="hidden" class="shop_lat" value="${suljip['mapy']}" />
                             <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" onclick="findLocation(suljip)" >길찾기</button>
                         </div>
                     </div>`;
         }
 
        //modal
+
         function findLocation(suljip) {
-             $('#staticBackdrop').on('show.bs.modal', function (event) {
+            $('#staticBackdrop').on('show.bs.modal', function (event) {
+                //var edit_card = $(event.relatedTarget) // Button that triggered the modal
+                var modal = $(this)
+                var card = $('#card-1').
+                console.log(card)
 
-                 //var edit_card = $(event.relatedTarget) // Button that triggered the modal
-                 var modal = $(this)
-                 var suljip_title = $('#shop_title').val();
-                 // 문제. suljip_title이 1번째 식당밖에 안읽힘 2번째 문제. 경도랑 위도가 잘못잡힘.
-                 console.log(suljip_title)
-                 let ex = $('#shop_lat').val();
-                 let ey = $('#shop_lng').val();
+                var card0 = $('#card-0')[0]['id']
+                var card1 = $('#card-1')[0]['id']
+                var card2 = $('#card-2')[0]['id']
+                var card3 = $('#card-3')[0]['id']
+                var card4 = $('#card-4')[0]['id']
 
-                 // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
-                 let geoData = getLatLng(ex, ey);
-                 console.log(geoData)
-                 //console.log(suljip_title)
+                const suljipElement1 = $('.suljip-title')[0]['innerText'];
+                const suljipElement2 = $('.suljip-title')[1]['innerText'];
+                const suljipElement3 = $('.suljip-title')[2]['innerText'];
+                const suljipElement4 = $('.suljip-title')[3]['innerText'];
+                const suljipElement5 = $('.suljip-title')[4]['innerText'];
 
-                 modal.find('.modal-title').text(suljip_title+'(으)로 가는길을 안내합니다. (내 위치 허용)')
+                var suljip_title1 =suljipElement1
+                var suljip_title2 =suljipElement2
+                var suljip_title3 =suljipElement3
+                var suljip_title4 =suljipElement4
+                var suljip_title5 =suljipElement5
 
-                 findMapTest(suljip_title, geoData)
+                const ex1 = $('.shop_lng')[0]['defaultValue']
+                const ex2 = $('.shop_lng')[1]['defaultValue']
+                const ex3 = $('.shop_lng')[2]['defaultValue']
+                const ex4 = $('.shop_lng')[3]['defaultValue']
+                const ex5 = $('.shop_lng')[4]['defaultValue']
 
-             })
+                const ey1 = $('.shop_lat')[0]['defaultValue']
+                const ey2 = $('.shop_lat')[1]['defaultValue']
+                const ey3 = $('.shop_lat')[2]['defaultValue']
+                const ey4 = $('.shop_lat')[3]['defaultValue']
+                const ey5 = $('.shop_lat')[4]['defaultValue']
+
+                var suljip_title = ""
+                var suljip_geoData = {}
+
+                if (card0 == "card-0") {
+                    var suljip_title = suljip_title1
+                    var suljip_geoData = {ex1, ey1}
+                } else if (card1 == $('#card-1').val()) {
+                    var suljip_title = suljip_title2
+                    var suljip_geoData = {ex2, ey2}
+                } else if (card2 == $('#card-2')[0]['id']) {
+                    var suljip_title = suljip_title3
+                    var suljip_geoData = {ex3, ey3}
+                } else if (card3 == $('#card-3')[0]['id']) {
+                    var suljip_title = suljip_title4
+                    var suljip_geoData = {ex4, ey4}
+                } else if (card4 == $('#card-4')[0]['id']) {
+                    var suljip_title = suljip_title2
+                    var suljip_geoData = {ex5, ey5}
+                } else {
+                    alert('error')
+                }
+
+                // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
+                let geoData = getLatLng(suljip_geoData);
+                console.log(suljip_geoData)
+
+                modal.find('.modal-title').text(suljip_title1+'(으)로 가는길을 안내합니다. (내 위치 허용)')
+                findRoute(geoData)
+
+                })
+
+
         }
 
 
@@ -254,7 +302,7 @@
                 console.log(geoData)
                 result.push(suljip);
 
-                //findMapTest(geoData);
+                //findRoute(geoData);
             }
             // 맛집 목록 반환
             return result;
@@ -399,7 +447,7 @@
 
 
 
-    function findMapTest(geoData){
+    function findRoute(geoData){
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function (position) {
                 user_latitude = position.coords.latitude;

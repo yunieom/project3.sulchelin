@@ -3,11 +3,14 @@ import pprint
 import time
 from pymongo import MongoClient
 
-# 맛집 데이터는 seoul_suljip 이라는 데이터베이스에 저장
+# 술집 데이터는 seoul_suljip 이라는 데이터베이스에 저장
+
+
 client = MongoClient('localhost', 27017)
 db = client.seoul_suljip
 
-# 서울시 구별로 맛집을 검색
+
+# 서울시 구별로 술집을 검색
 seoul_gu = ["종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구", "강북구", "도봉구", "노원구", "은평구", "서대문구", "마포구", "양천구", "강서구", "구로구", "금천구", "영등포구", "동작구", "관악구", "서초구", "강남구", "송파구", "강동구"]
 seoul_sul = ["와인", "칵테일", "소주", "맥주"]
 # 네이버 검색 API 아이디와 시크릿 키
@@ -53,5 +56,5 @@ for sul in seoul_sul:
             # docs에 술집들 추가
             docs.append(suljip)
 
-# 맛집 정보 저장
+# 술집 정보 저장
 db.suljip.insert_many(docs)

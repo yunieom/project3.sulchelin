@@ -246,7 +246,7 @@
                 } else {
                     alert('error');
                 }
-                
+
                 // TM128 좌표를 위도(lat), 경도(lng) 딕셔너리로 반환
                 let geoData = getLatLng(ex, ey);
                 console.log(geoData)
@@ -290,7 +290,6 @@
                 // geoData 라는 이름으로 술집 데이터에 추가
                 suljip['geoData'] = geoData;
                 // 반환할 술집 목록에 추가
-                console.log(geoData)
                 result.push(suljip);
 
                 //findRoute(geoData);
@@ -445,7 +444,6 @@
                 user_longitude = position.coords.longitude;
                 shop_latitude =  geoData['lat'];
                 shop_longitude = geoData['lng'];
-                console.log(user_latitude, user_longitude, shop_latitude,shop_longitude);
 
 
 
@@ -541,7 +539,7 @@
         xhr.send();
         xhr.onreadystatechange = function () {
             if (xhr.readyState == 4 && xhr.status == 200) {
-                console.log((JSON.parse(xhr.responseText))["result"]); // <- xhr.responseText 로 결과를 가져올 수 있음
+                console.log((JSON.parse(xhr.responseText))); // <- xhr.responseText 로 결과를 가져올 수 있음
                 //노선그래픽 데이터 호출
                 console.log((JSON.parse(xhr.responseText))['result']['path'][0]['info'])
                 callMapObjApiAJAX((JSON.parse(xhr.responseText))["result"]["path"][0].info.mapObj);

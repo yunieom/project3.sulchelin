@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 ## URL 별로 함수명이 같거나,
 ## route('/') 등의 주소가 같으면 안됨
+
 client = MongoClient('localhost', 27017)
 db = client.seoul_suljip
 

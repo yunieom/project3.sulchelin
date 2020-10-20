@@ -26,7 +26,11 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
                 integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
                 crossorigin="anonymous"></script>
-
+    <!-- google font -->
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap" rel="stylesheet">
+    <!-- font awesome -->
+    <link style="text/css" rel="stylesheet" type="text/css"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
 
 
 
@@ -51,6 +55,7 @@
         }
 
         .wrap {
+            padding-top: 70px;
             width: 700px;
             margin: 10px auto;
         }
@@ -67,6 +72,40 @@
         .btn btn-outline-secondary {
             text-align: right;
         }
+
+        h1 {
+            font-family: 'Black Han Sans', sans-serif;
+            text-align: center;
+            color: #bb2205;
+        }
+        .btn-danger {
+            color: #fff;
+            background-color: #bb2205;
+            border-color: #bb2205;
+        }
+        a {
+            font-weight: bold;
+            color: #212121;
+            text-decoration: none;
+            background-color: transparent;
+        }
+        .btn-outline-light {
+            padding: 5px 10px;
+            color: #03c4a1;
+            float: right;
+        }
+        #map > div:nth-child(9) > div > div:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div > div {
+            padding-top: 4px !important;
+            border: 5px solid #03c4a1 !important;
+            border-radius: 10px;
+        }
+        h5 {
+            font-weight: bold !important;
+        }
+        iw_inner {
+            width: 155px;
+        }
+
 
 
     </style>
@@ -86,9 +125,9 @@
                     <option value="소주">soju</option>
                     <option value="맥주">beer</option>
                </select>
-              <input type="text" class="form-control" aria-label="Text input with dropdown button" id="guName" style="width: 400px">
-              <div class="input-group-append">
-                <button type="button" class="btn btn-success" onclick="find_my_best_place()" style="width: 130px">검색</button>
+                    <div class="input-group-append">
+                    <input type="text" class="form-control" aria-label="Text input with dropdown button" id="guName" style="width: 400px">
+                    <button type="button" class="btn btn-danger" onclick="find_my_best_place()" style="width: 130px">검색</button>
               </div>
           </div>
         </div>
@@ -184,11 +223,11 @@
                             <h5 class="card-title" id="suljip-title"><a href="#" class="suljip-title">${suljip['title']}</a></h5>
                             <h6 class="card-subtitle mb-2 text-muted">${suljip['category']}</h6>
                             <p class="card-text">${suljip['roadAddress']}</p>
-                            <a href="${suljip['link']}" target="_blank" class="card-link">링크</a>
+                            <a href="${suljip['link']}" target="_blank" class="card-link"></a>
                             <a href="#" class="card-link">${suljip['telephone']}</a>
                             <input type="hidden" class="shop_lng" value="${suljip['mapx']}" />
                             <input type="hidden" class="shop_lat" value="${suljip['mapy']}" />
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" onclick="findLocation(${n})" >길찾기</button>
+                            <button class="btn btn-outline-light" data-toggle="modal" data-target="#staticBackdrop" onclick="findLocation(${n})"><i class="fas fa-route fa-2x"></i></button>
                         </div>
                     </div>`;
         }
@@ -199,7 +238,6 @@
             $('#staticBackdrop').on('show.bs.modal', function (event) {
                 //var edit_card = $(event.relatedTarget) // Button that triggered the modal
                 var modal = $(this)
-
                 console.log(num)
 
 
@@ -328,10 +366,10 @@
 
                 // 마커를 클릭했을 때 보여줄 창을 HTML 태그로 만들기
                 let contentString = `<div class="iw_inner">
-                                    <h3>${suljip['title']}</h3>
+                                    <h5>${suljip['title']}</h5>
                                     <p>${suljip['address']}<br />
                                         ${suljip['category']}<br />
-                                        <a href="${suljip['link']}" target="_blank">링크</a>
+                                        <a href="${suljip['link']}" target="_blank"></a>
                                     </p>
                                     </div>`;
                 // contents에 태그를 저장

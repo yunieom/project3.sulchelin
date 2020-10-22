@@ -117,6 +117,11 @@
             text-align: right;
             padding-right: 20px;
         }
+        #map2 {
+            width: 700px;
+            height: 500px;
+            margin: 50px auto 50px auto;
+        }
 
 
 
@@ -247,11 +252,12 @@
        //modal
 
         function findLocation(num) {
+
             $('#staticBackdrop').on('show.bs.modal', function (event) {
                 //var edit_card = $(event.relatedTarget) // Button that triggered the modal
+
                 var modal = $(this)
                 console.log(num)
-
 
                 const suljip_title0 = $('.suljip-title')[0]['innerText'];
                 const suljip_title1  = $('.suljip-title')[1]['innerText'];
@@ -302,9 +308,10 @@
                 console.log(geoData)
 
                 modal.find('.modal-title').text(suljip_title+'(으)로 가는길을 안내합니다. (내 위치 허용)')
-                findRoute(geoData)
+                findRouteTest(geoData)
 
                 })
+
 
 
         }
@@ -344,7 +351,7 @@
 
                 //findRoute(geoData);
             }
-            // 맛집 목록 반환
+            // 술집 목록 반환
             return result;
         }
 
@@ -436,7 +443,6 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">현재위치에서 가는길을 안내합니다.</h5>
-                <button class="btn btn-outline-secondary" type="button" onclick="find_loc()">go</button>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -465,20 +471,9 @@
 
     var mapOptions2 = {
             center: new naver.maps.LatLng(37.546065, 126.983068),
-            zoom: 12
+            zoom: 10
         }
-    var map2 = new naver.maps.Map('map', {
-            center: new naver.maps.LatLng(37.546065, 126.983068),
-            zoom: 12
-        });
-
-
-    function find_loc() {
-        $("#route").empty();
-        map = new naver.maps.Map('map2', mapOptions2);
-
-    }
-
+    var map2 = new naver.maps.Map('map2', mapOptions2);
 
     let sx = 0;
     let sy = 0;
@@ -486,12 +481,13 @@
     let ey = 0;
 
 
-
+    //geoLocation이 될 때
+    /*
     function findRoute(geoData){
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function (position) {
-                user_latitude = position.coords.latitude;
-                user_longitude = position.coords.longitude;
+                user_latitude = "";
+                user_longitude = "";
                 shop_latitude =  geoData['lat'];
                 shop_longitude = geoData['lng'];
 
@@ -507,8 +503,8 @@
                         shop_longitude:shop_longitude
                     },
                     success: function (response) {
-                        sx = response['result']['SX']
-                        sy = response['result']['SY']
+                        sx = 126.925018
+                        sy = 37.552398
                         ex = response['result']['EX']
                         ey = response['result']['EY']
                         console.log(sx)
@@ -531,17 +527,66 @@
             });
         }
     }
-
+    */
 
     let m = 1;
+
+    //보안문제로 서버에서 geoLocation이 안잡히기 때문에 임의로 현재위치를 잡았다.
+
+    function findRouteTest(geoData) {
+
+        map = new naver.maps.Map('map2', mapOptions2);
+
+
+        user_latitude = 126.925018
+        user_longitude = 37.552398;
+        shop_latitude =  geoData['lat'];
+        shop_longitude = geoData['lng'];
+
+
+        $.ajax({
+            type: 'POST',
+            url: '/suljip/location',
+            data: {
+                user_latitude: user_latitude,
+                user_longitude: user_longitude,
+                shop_latitude: geoData['lat'],
+                shop_longitude: geoData['lng']
+            },
+            success: function (response) {
+                sx = 126.925018
+                sy = 37.552398
+                ex = response['result']['EX']
+                ey = response['result']['EY']
+
+
+                searchPubTransPathAJAX(sx, sy, ex, ey);
+                getInfo(sx, sy, ex, ey);
+            },
+            error: function () {
+                console.log('error')
+            }
+        })
+
+
+    }
+
 
     function getInfo(sx, sy, ex, ey) {
         var xhr = new XMLHttpRequest();
         //ODsay apiKey 입력
-        var url = "https://api.odsay.com/v1/api/searchPubTransPath?SX=" + sx + "&SY=" + sy + "&EX=" + ex + "&EY=" + ey + "&apiKey=7Ak3/euIYXO3u1EJYksnyvuyqX5tBUrrNfSg3h1zGec";
+        var url = "https://api.odsay.com/v1/api/searchPubTransPath?SX=" + sx + "&SY=" + sy + "&EX=" + ex + "&EY=" + ey + "&apiKey=OuYbnWIk9kzksnfR96yA%2Bg";
         xhr.open("GET", url, true);
         xhr.send();
+        console.log(sx)
+        console.log(sy)
+        console.log(ex)
+        console.log(ey)
+
+
+
         xhr.onreadystatechange = function () {
+            $("#route").empty();
 
             if (xhr.readyState == 4 && xhr.status == 200) {
                 let subpath = (JSON.parse(xhr.responseText))["result"]["path"][0]["subPath"]
@@ -554,23 +599,17 @@
                         txt = "<li>" + subpath[i]["startName"] + "-->"
                             + subpath[i]["endName"] +
                             " (지하철 " + subpath[i]["lane"][0]["name"] + ")" + "</li>"
-
-                        console.log(txt)
                         $("#route").append(txt)
                     } else if (subpath[i]["trafficType"] == 2) {
                         txt = "<li>" + subpath[i]["startName"] + "-->"
                             + subpath[i]["endName"] +
                             " (" + subpath[i]["lane"][0]["busNo"] + "번 버스)" + "</li>"
-
-                        console.log(txt)
                         $("#route").append(txt)
                     } else {
                         if (subpath[i]["sectionTime"] == 0) {
                             console.log('(환승)')
                         } else {
                             txt = "<li>" + "도보로 이동" + " (" + subpath[i]["sectionTime"] + "분 소요)" + "</li>"
-
-                            console.log(txt)
                             $("#route").append(txt)
 
                         }
@@ -581,17 +620,15 @@
 
     }
 
+
     function searchPubTransPathAJAX(sx, sy, ex, ey) {
         var xhr = new XMLHttpRequest();
         //ODsay apiKey 입력
-        var url = "https://api.odsay.com/v1/api/searchPubTransPath?SX=" + sx + "&SY=" + sy + "&EX=" + ex + "&EY=" + ey + "&apiKey=7Ak3/euIYXO3u1EJYksnyvuyqX5tBUrrNfSg3h1zGec";
+        var url = "https://api.odsay.com/v1/api/searchPubTransPath?SX=" + sx + "&SY=" + sy + "&EX=" + ex + "&EY=" + ey + "&apiKey=OuYbnWIk9kzksnfR96yA%2Bg";
         xhr.open("GET", url, true);
         xhr.send();
         xhr.onreadystatechange = function () {
             if (xhr.readyState == 4 && xhr.status == 200) {
-                console.log((JSON.parse(xhr.responseText))); // <- xhr.responseText 로 결과를 가져올 수 있음
-                //노선그래픽 데이터 호출
-                console.log((JSON.parse(xhr.responseText))['result']['path'][0]['info'])
                 callMapObjApiAJAX((JSON.parse(xhr.responseText))["result"]["path"][0].info.mapObj);
             }
         }
@@ -603,7 +640,7 @@
     function callMapObjApiAJAX(mabObj) {
         var xhr = new XMLHttpRequest();
         //ODsay apiKey 입력
-        var url = "https://api.odsay.com/v1/api/loadLane?mapObject=0:0@" + mabObj + "&apiKey=7Ak3/euIYXO3u1EJYksnyvuyqX5tBUrrNfSg3h1zGec";
+        var url = "https://api.odsay.com/v1/api/loadLane?mapObject=0:0@" + mabObj + "&apiKey=OuYbnWIk9kzksnfR96yA%2Bg";
         xhr.open("GET", url, true);
         xhr.send();
         xhr.onreadystatechange = function () {
@@ -630,7 +667,6 @@
             position: new naver.maps.LatLng(y, x),
             animation: 2,
             map: map,
-
         });
     }
 

@@ -4,10 +4,11 @@ import time
 from pymongo import MongoClient
 
 # 술집 데이터는 seoul_suljip 이라는 데이터베이스에 저장
+#client = MongoClient('localhost', 27017)
+#db = client.seoul_suljip
 
-
-client = MongoClient('localhost', 27017)
-db = client.seoul_suljip
+client = MongoClient('mongodb://test:test@localhost',27017)
+db = client.dbsparta
 
 
 # 서울시 구별로 술집을 검색
